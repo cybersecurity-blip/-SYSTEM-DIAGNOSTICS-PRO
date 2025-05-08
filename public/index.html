@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔍 PC Parts Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        #results {
+            text-align: left;
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>PC Parts Scanner</h1>
+    <button id="downloadBtn">⬇️ Download Scanner</button>
+    <button id="scanBtn" disabled>🔍 Read My PC</button>
+    
+    <div id="results"></div>
 
+    <script>
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            window.location.href = 'scanner.exe'; // This will download the file
+            document.getElementById('scanBtn').disabled = false;
+        });
+
+        document.getElementById('scanBtn').addEventListener('click', async () => {
+            try {
+                const data = await window.electronAPI.scanPC();
+                document.getElementById('results').innerHTML = `
+                    <h3>CPU: ${data.cpu.brand}</h3>
+                    <h3>GPU: ${data.gpu.controllers[0].model}</h3>
+                    <h3>RAM: ${data.memLayout[0].size} GB</h3>
+                `;
+            } catch (err) {
+                alert("Run the downloaded scanner first!");
+            }
+        });
+    </script>
+</body>
+</html>
