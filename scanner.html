@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic PC Scanner</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .scan-btn {
+            background: #2ea44f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        .results {
+            background: #f6f8fa;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>🖥️ Basic System Scanner</h1>
+    <p>Click below to see your basic system info</p>
+    
+    <button class="scan-btn" onclick="scan()">Scan My PC</button>
+    
+    <div id="results" class="results">
+        <!-- Results will appear here -->
+    </div>
+
+    <script>
+        function scan() {
+            const info = {
+                os: navigator.platform,
+                browser: navigator.userAgent,
+                cores: navigator.hardwareConcurrency || "Unknown",
+                screen: `${screen.width} x ${screen.height} pixels`
+            };
+            
+            document.getElementById('results').innerHTML = `
+                <h3>Basic System Info:</h3>
+                <p><strong>OS:</strong> ${info.os}</p>
+                <p><strong>Browser:</strong> ${info.browser.split(')')[0]})</p>
+                <p><strong>CPU Cores:</strong> ${info.cores}</p>
+                <p><strong>Screen:</strong> ${info.screen}</p>
+                <p><em>Note: This shows limited browser-accessible info only</em></p>
+            `;
+        }
+    </script>
+</body>
+</html>
