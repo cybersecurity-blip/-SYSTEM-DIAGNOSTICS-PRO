@@ -483,6 +483,41 @@
                 event.target.style.display = 'none';
             }
         }
+<!-- Scanner Section -->
+<div id="scanner-section" style="margin: 40px 0; padding: 20px; background: rgba(0,0,0,0.05); border-radius: 10px;">
+  <h2><i class="fas fa-laptop-code"></i> Quick System Scan</h2>
+  <button onclick="runBasicScan()" class="btn btn-primary" style="margin: 10px 0;">
+    <i class="fas fa-search"></i> Run Browser Scan
+  </button>
+  <div id="scan-results" style="margin-top: 20px; display: none;">
+    <h3><i class="fas fa-info-circle"></i> Basic System Info</h3>
+    <div id="hardware-details"></div>
+    <p class="text-muted">For full diagnostics, download our scanner</p>
+  </div>
+</div>
+
+<script>
+  function runBasicScan() {
+    const details = document.getElementById('hardware-details');
+    const resultsDiv = document.getElementById('scan-results');
+    
+    // Get browser-accessible system info
+    const systemInfo = {
+      OS: navigator.platform,
+      Cores: navigator.hardwareConcurrency || "Unknown",
+      RAM: navigator.deviceMemory ? `${navigator.deviceMemory}GB` : "Unknown",
+      Screen: `${screen.width} × ${screen.height} pixels`,
+      Browser: navigator.userAgent.split(')')[0] + ")"
+    };
+    
+    // Display results
+    details.innerHTML = Object.entries(systemInfo)
+      .map(([key, val]) => `<p><strong>${key}:</strong> ${val}</p>`)
+      .join('');
+    
+    resultsDiv.style.display = 'block';
+  }
+</script>
     </script>
 </body>
 </html>
