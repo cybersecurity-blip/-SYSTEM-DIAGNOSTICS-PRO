@@ -1,47 +1,397 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>🔍 PC Parts Scanner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM DIAGNOSTICS PRO | Hardware Scanner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
+        :root {
+            --primary: #00c6ff;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
         }
-        #results {
-            text-align: left;
-            margin: 20px auto;
-            max-width: 600px;
-            padding: 15px;
-            border: 1px solid #ddd;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .download-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .download-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            margin-bottom: 2rem;
+        }
+
+        .features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .features li {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        .features i {
+            color: var(--success);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+        }
+
+        .btn-lg {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .tech-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .spec-card {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .spec-card i {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .spec-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+        }
+
+        .spec-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        footer {
+            margin-top: 5rem;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: #64748b;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
         }
     </style>
 </head>
 <body>
-    <h1>PC Parts Scanner</h1>
-    <button id="downloadBtn">⬇️ Download Scanner</button>
-    <button id="scanBtn" disabled>🔍 Read My PC</button>
+    <div class="particles" id="particles-js"></div>
     
-    <div id="results"></div>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span class="logo-text">SYSTEM DIAGNOSTICS PRO</span>
+            </div>
+            <div class="nav">
+                <a href="#" class="btn" style="margin-right: 1rem;">
+                    <i class="fas fa-book"></i> Documentation
+                </a>
+                <a href="#" class="btn">
+                    <i class="fas fa-question-circle"></i> Support
+                </a>
+            </div>
+        </header>
 
+        <div class="main-content">
+            <div class="hero">
+                <h1>Advanced System Diagnostics at Your Fingertips</h1>
+                <p class="subtitle">
+                    Gain deep insights into your hardware performance with our professional-grade scanning tool. 
+                    Optimize your system, identify bottlenecks, and monitor real-time metrics.
+                </p>
+                
+                <div class="tech-specs">
+                    <div class="spec-card">
+                        <i class="fas fa-microchip"></i>
+                        <div class="spec-title">CPU Analysis</div>
+                        <div class="spec-value">24+ Metrics</div>
+                    </div>
+                    <div class="spec-card">
+                        <i class="fas fa-memory"></i>
+                        <div class="spec-title">RAM Monitor</div>
+                        <div class="spec-value">Real-time</div>
+                    </div>
+                    <div class="spec-card">
+                        <i class="fas fa-hdd"></i>
+                        <div class="spec-title">Storage Health</div>
+                        <div class="spec-value">S.M.A.R.T</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="download-card floating">
+                <div class="card-header">
+                    <i class="fas fa-download"></i>
+                    <div class="card-title">Get Started Now</div>
+                </div>
+                <div class="card-body">
+                    <ul class="features">
+                        <li><i class="fas fa-check-circle"></i> Full hardware inventory</li>
+                        <li><i class="fas fa-check-circle"></i> Real-time performance monitoring</li>
+                        <li><i class="fas fa-check-circle"></i> Temperature and voltage readings</li>
+                        <li><i class="fas fa-check-circle"></i> No installation required</li>
+                    </ul>
+                </div>
+                <a id="downloadBtn" href="#" class="btn btn-primary btn-lg">
+                    <i class="fas fa-download"></i> Download Scanner (v1.0.0)
+                </a>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
+                    <i class="fas fa-shield-alt"></i> Secure • 100% Private • No Data Collection
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 System Diagnostics Pro. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">
+                <a href="#" style="color: #64748b; text-decoration: none; margin: 0 0.5rem;">Terms of Service</a> | 
+                <a href="#" style="color: #64748b; text-decoration: none; margin: 0 0.5rem;">Privacy Policy</a> | 
+                <a href="#" style="color: #64748b; text-decoration: none; margin: 0 0.5rem;">Contact</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Particles.js for background effect -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            window.location.href = 'scanner.exe'; // This will download the file
-            document.getElementById('scanBtn').disabled = false;
-        });
-
-        document.getElementById('scanBtn').addEventListener('click', async () => {
-            try {
-                const data = await window.electronAPI.scanPC();
-                document.getElementById('results').innerHTML = `
-                    <h3>CPU: ${data.cpu.brand}</h3>
-                    <h3>GPU: ${data.gpu.controllers[0].model}</h3>
-                    <h3>RAM: ${data.memLayout[0].size} GB</h3>
-                `;
-            } catch (err) {
-                alert("Run the downloaded scanner first!");
+        // Initialize particles.js
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#00c6ff"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    }
+                },
+                "opacity": {
+                    "value": 0.3,
+                    "random": true,
+                    "anim": {
+                        "enable": true,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 3,
+                    "random": true
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#00c6ff",
+                    "opacity": 0.2,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 1,
+                    "direction": "none",
+                    "random": true,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    }
+                }
             }
         });
+
+        // Update download link (replace with your actual GitHub Releases link)
+        document.getElementById('downloadBtn').href = 
+            'https://github.com/cybersecurity-blip/-SYSTEM-DIAGNOSTICS-PRO/releases/latest/download/scanner.exe';
     </script>
 </body>
 </html>
