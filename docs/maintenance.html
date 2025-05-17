@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Server Overload</title>
+  <title>Admin Panel</title>
   <style>
+    /* Server Overload Styling (shown by default) */
     body {
       background-color: white;
       color: black;
@@ -14,10 +15,115 @@
       font-family: sans-serif;
       font-size: 1.5em;
       text-align: center;
+      margin: 0;
+      flex-direction: column;
+    }
+
+    /* Hidden Admin Panel (shown after login) */
+    #login-section, #admin-panel {
+      display: none;
+    }
+
+    /* Show login form only if URL has ?admin=true */
+    body.show-admin #login-section {
+      display: block;
+    }
+
+    /* Show admin panel only after successful login */
+    body.show-admin-panel #admin-panel {
+      display: block;
+    }
+
+    /* Hide overload message when admin is active */
+    body.show-admin #overload-message,
+    body.show-admin-panel #overload-message {
+      display: none;
+    }
+
+    /* Login form styling */
+    #login-form {
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
     }
   </style>
 </head>
-<body>
-  Server Overload. Please try again later.
+<body id="body">
+  <!-- Default: Server Overload Message -->
+  <div id="overload-message">
+    Server Overload. Please try again later.
+  </div>
+
+  <!-- Admin Login Section (Hidden by Default) -->
+  <div id="login-section">
+    <h1>Admin Login</h1>
+    <form id="login-form">
+      <input type="password" id="admin-code" placeholder="Enter Admin Code" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- Admin Panel (Hidden Until Login) -->
+  <div id="admin-panel">
+    <h1>Live Website Activity</h1>
+    <div id="live-feed"></div>
+    <button id="logout-btn">Logout</button>
+  </div>
+
+  <script>
+    // Check URL for ?admin=true (e.g., maintenance.html?admin=true)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('admin')) {
+      document.getElementById('body').classList.add('show-admin');
+    }
+
+    const loginForm = document.getElementById('login-form');
+    const adminPanel = document.getElementById('admin-panel');
+    const liveFeed = document.getElementById('live-feed');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('admin-code').value;
+
+      const response = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `code=${encodeURIComponent(code)}`
+      });
+
+      if (response.ok) {
+        document.getElementById('body').classList.remove('show-admin');
+        document.getElementById('body').classList.add('show-admin-panel');
+        fetchLiveData();
+      } else {
+        alert("Invalid admin code!");
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      window.location.href = '/maintenance.html'; // Reset page
+    });
+
+    async function fetchLiveData() {
+      try {
+        const response = await fetch('/admin/data');
+        const data = await response.json();
+        
+        // Only show specific data (customize this filter)
+        const filteredData = {
+          usersOnline: data.usersOnline,
+          recentActivity: data.recentActivity.filter(item => item.type === 'admin_alert')
+        };
+
+        liveFeed.innerHTML = `<pre>${JSON.stringify(filteredData, null, 2)}</pre>`;
+      } catch (error) {
+        liveFeed.innerHTML = "Error loading data.";
+      }
+    }
+  </script>
 </body>
 </html>
+
