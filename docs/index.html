@@ -3,9 +3,11 @@
 <head>
 <script>
   const accessCode = new URLSearchParams(window.location.search).get('code');
-  const allowedCode = "Taha"; // Change this to your private code
 
-  if (accessCode !== allowedCode) {
+  // Add allowed codes here
+  const allowedCodes = ["letmein", "adminaccess"]; // <--- Add more as needed
+
+  if (!allowedCodes.includes(accessCode)) {
     window.location.href = "maintenance.html";
   }
 </script>
