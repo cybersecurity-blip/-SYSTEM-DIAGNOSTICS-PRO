@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  const accessCode = new URLSearchParams(window.location.search).get('code');
+  const allowedCode = "letmein"; // Change this to your private code
+
+  if (accessCode !== allowedCode) {
+    window.location.href = "maintenance.html";
+  }
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SYSTEM DIAGNOSTICS PRO | Hardware Scanner</title>
