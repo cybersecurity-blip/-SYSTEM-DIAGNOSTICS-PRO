@@ -1,4 +1,49 @@
+ <head>
+<script>
+// Global flag to prevent multiple initializations
+let adminInitialized = false;
 
+async function initializeAdminPanel() {
+  if (adminInitialized) return;
+  adminInitialized = true;
+  
+  try {
+    // 1. Check authentication
+    const authCheck = await fetch('/api/auth/verify', {
+      credentials: 'include'
+    });
+    
+    if (!authCheck.ok) {
+      window.location.href = 'maintenance.html';
+      return;
+    }
+
+    // 2. Load initial data
+    await Promise.all([
+      loadSystemStatus(),
+      loadUsers()
+    ]);
+
+    // 3. Set up event listeners
+    document.getElementById('maintenanceBtn').addEventListener('click', toggleMaintenance);
+    document.getElementById('shutdownBtn').addEventListener('click', confirmShutdown);
+    document.getElementById('cpuSlider').addEventListener('input', throttleCpu);
+
+    // 4. Start status updates (slower interval)
+    setInterval(loadSystemStatus, 10000); // 10 seconds
+    
+  } catch (error) {
+    console.error('Admin initialization failed:', error);
+    document.getElementById('systemStatus').textContent = 'Connection Error';
+    document.getElementById('systemStatus').classList.add('status-offline');
+  }
+}
+
+// Call initialization when DOM loads
+document.addEventListener('DOMContentLoaded', initializeAdminPanel);
+
+// ... (keep your existing function implementations below) ...
+</script>
 <script>
 // DOM Elements
 const statusElements = {
@@ -165,26 +210,5 @@ function editUser(userId) {
   console.log('Edit user:', userId);
 }
 </script>
-.btn-action {
-  background: transparent;
-  border: none;
-  color: var(--primary);
-  cursor: pointer;
-  padding: 0.5rem;
-}
 
-.btn-action:hover {
-  color: var(--secondary);
-}
 
-.status-online {
-  color: var(--success);
-}
-
-.status-offline {
-  color: var(--danger);
-}
-
-.status-maintenance {
-  color: var(--warning);
-}
