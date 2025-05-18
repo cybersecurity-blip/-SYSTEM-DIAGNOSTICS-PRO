@@ -329,3 +329,34 @@ async function startServer() {
 }
 
 startServer();
+// Admin endpoints
+app.get('/api/system/status', async (req, res) => {
+  const status = await SystemStatus.findOne();
+  res.json({
+    maintenanceMode: status?.maintenanceMode || false,
+    activeUsers: await User.countDocuments({ isActive: true }),
+    // Add other status fields
+  });
+});
+
+app.post('/api/system/maintenance', async (req, res) => {
+  const current = await SystemStatus.findOne();
+  const newMode = !current?.maintenanceMode;
+  
+  await SystemStatus.updateOne({}, {
+    maintenanceMode: newMode,
+    lastUpdated: new Date()
+  }, { upsert: true });
+  
+  res.json({ success: true, maintenanceMode: newMode });
+});
+
+app.post('/api/system/throttle', async (req, res) => {
+  const { percent } = req.body;
+  await SystemStatus.updateOne({}, {
+    cpuThrottle: Math.min(100, Math.max(0, percent)),
+    lastUpdated: new Date()
+  }, { upsert: true });
+  
+  res.json({ success: true });
+});
