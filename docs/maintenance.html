@@ -38,51 +38,99 @@
       border: none;
       padding: 10px 20px;
       cursor: pointer;
+      margin: 5px;
+    }
+    .error {
+      color: #ff6b6b;
+      margin: 10px 0;
+    }
+    .forgot-password {
+      color: #00c6ff;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #resetForm {
+      display: none;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🛠️ System Maintenance</h1>
-    <p>We're performing critical system updates. Please check back later.</p>
+    <p id="statusMessage">We're performing critical system updates.</p>
     
     <div class="login-box" id="loginSection">
       <h3>Admin Login</h3>
       <input type="text" id="username" placeholder="Username">
       <input type="password" id="password" placeholder="Password">
       <button onclick="login()">Login</button>
+      <div id="errorMessage" class="error"></div>
+      <div class="forgot-password" onclick="showResetForm()">Forgot password?</div>
+      
+      <div id="resetForm">
+        <h4>Reset Password</h4>
+        <input type="email" id="resetEmail" placeholder="Your email">
+        <button onclick="sendResetLink()">Send Reset Link</button>
+        <div id="resetMessage" class="error"></div>
+      </div>
     </div>
   </div>
 
   <script>
-  async function login() {
+  // Hardcoded credentials (FOR DEVELOPMENT ONLY)
+  const ADMIN_CREDENTIALS = {
+    username: "admin",
+    password: "SecurePass123!", // Change this!
+    email: "admin@yourdomain.com" // Change this!
+  };
+
+  // Simple session storage
+  const authToken = "demo-auth-token-12345";
+
+  function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+    const errorElement = document.getElementById('errorMessage');
 
-    try {
-      const response = await fetch('YOUR_BACKEND_URL/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include'
-      });
+    if (username === ADMIN_CREDENTIALS.username && 
+        password === ADMIN_CREDENTIALS.password) {
+      // Successful login
+      document.cookie = `authToken=${authToken}; path=/; max-age=3600`; // 1 hour
+      window.location.href = 'admin.html';
+    } else {
+      errorElement.textContent = 'Invalid username or password';
+    }
+  }
 
-      if (response.ok) {
-        window.location.href = 'index.html';
-      } else {
-        alert('Login failed');
-      }
-    } catch (error) {
-      alert('Connection error');
-      // Redirect to login if not authenticated
-fetch('/api/check-auth')
-  .then(res => res.json())
-  .then(data => {
-    if (!data.authenticated) {
-      window.location.href = 'maintenance.html';
+  function showResetForm() {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('resetForm').style.display = 'block';
+    document.getElementById('statusMessage').textContent = 'Enter your email to reset password';
+  }
+
+  function sendResetLink() {
+    const email = document.getElementById('resetEmail').value;
+    const resetMessage = document.getElementById('resetMessage');
+    
+    if (email === ADMIN_CREDENTIALS.email) {
+      // In a real app, you would send an email here
+      resetMessage.textContent = 'Reset link sent to your email (simulated)';
+      resetMessage.style.color = '#00c6ff';
+      
+      // Simulate sending email
+      setTimeout(() => {
+        resetMessage.textContent += '\nDemo reset link: reset.html?token=temp-reset-token';
+      }, 1500);
+    } else {
+      resetMessage.textContent = 'Email not found in our system';
+      resetMessage.style.color = '#ff6b6b';
     }
-  });
-    }
+  }
+
+  // Check if already logged in
+  if (document.cookie.includes('authToken')) {
+    window.location.href = 'admin.html';
   }
   </script>
 </body>
