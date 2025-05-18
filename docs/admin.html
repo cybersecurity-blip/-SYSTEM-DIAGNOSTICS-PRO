@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #3b82f6;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f1f5f9;
+      color: #334155;
+      margin: 0;
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+    
+    .sidebar {
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 1rem;
+    }
+    
+    .main-content {
+      padding: 2rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo" style="padding: 1rem 0; margin-bottom: 1rem;">
+        <img src="logo.png" alt="Logo" style="height: 40px;">
+      </div>
+      <nav>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: 0.5rem 0;"><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li style="padding: 0.5rem 0;"><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+          <li style="padding: 0.5rem 0;"><a href="#"><i class="fas fa-users"></i> Users</a></li>
+          <li style="padding: 0.5rem 0;"><a href="#"><i class="fas fa-history"></i> Logs</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <h1 style="margin-top: 0;">System Controls</h1>
+      
+      <!-- Status Cards -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+        <div class="card">
+          <h3 style="margin-top: 0;">System Status</h3>
+          <p id="systemStatus">Loading...</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top: 0;">Active Users</h3>
+          <p id="activeUsers">0</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top: 0;">Uptime</h3>
+          <p id="systemUptime">00:00:00</p>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="card">
+        <h2 style="margin-top: 0;">Quick Actions</h2>
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+          <button class="btn btn-primary" id="maintenanceBtn">
+            <i class="fas fa-tools"></i> Toggle Maintenance
+          </button>
+          <button class="btn btn-primary" id="restartBtn">
+            <i class="fas fa-sync-alt"></i> Restart Services
+          </button>
+          <button class="btn btn-danger" id="shutdownBtn">
+            <i class="fas fa-power-off"></i> Emergency Stop
+          </button>
+        </div>
+        
+        <div style="margin-top: 1.5rem;">
+          <label for="cpuSlider" style="display: block; margin-bottom: 0.5rem;">
+            CPU Throttle: <span id="cpuValue">0%</span>
+          </label>
+          <input type="range" id="cpuSlider" min="0" max="100" style="width: 100%;">
+        </div>
+      </div>
+
+      <!-- User Management -->
+      <div class="card">
+        <h2 style="margin-top: 0; margin-bottom: 1rem;">User Management</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Last Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTable">
+            <!-- Filled by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // Connect to server
+  async function fetchSystemStatus() {
+    try {
+      const response = await fetch('/api/system/status');
+      const data = await response.json();
+      
+      // Update UI
+      document.getElementById('systemStatus').textContent = 
+        data.maintenanceMode ? 'Maintenance Mode' : 'Operational';
+      document.getElementById('activeUsers').textContent = 
+        data.activeUsers || 0;
+      
+      // Set toggle button state
+      const btn = document.getElementById('maintenanceBtn');
+      btn.innerHTML = data.maintenanceMode ? 
+        '<i class="fas fa-check-circle"></i> Disable Maintenance' : 
+        '<i class="fas fa-tools"></i> Enable Maintenance';
+    } catch (error) {
+      console.error('Error fetching status:', error);
+    }
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchSystemStatus();
+    
+    // Set up button handlers
+    document.getElementById('maintenanceBtn').addEventListener('click', async () => {
+      const response = await fetch('/api/system/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.ok) fetchSystemStatus();
+    });
+    
+    document.getElementById('shutdownBtn').addEventListener('click', async () => {
+      if (confirm('Are you sure you want to shutdown the system?')) {
+        await fetch('/api/system/shutdown', { method: 'POST' });
+        alert('System shutdown initiated');
+      }
+    });
+    
+    // CPU Slider
+    document.getElementById('cpuSlider').addEventListener('input', async (e) => {
+      const value = e.target.value;
+      document.getElementById('cpuValue').textContent = `${value}%`;
+      await fetch('/api/system/throttle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ percent: value })
+      });
+    });
+  });
+  </script>
+</body>
+</html>
