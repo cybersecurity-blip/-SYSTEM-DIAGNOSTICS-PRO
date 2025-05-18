@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>System Maintenance</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+      border: 2px solid #00c6ff;
+      border-radius: 10px;
+      max-width: 600px;
+    }
+    .login-box {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+    }
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+    }
+    button {
+      background: #00c6ff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛠️ System Maintenance</h1>
+    <p>We're performing critical system updates. Please check back later.</p>
+    
+    <div class="login-box" id="loginSection">
+      <h3>Admin Login</h3>
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <script>
+  async function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const response = await fetch('YOUR_BACKEND_URL/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        window.location.href = 'index.html';
+      } else {
+        alert('Login failed');
+      }
+    } catch (error) {
+      alert('Connection error');
+    }
+  }
+  </script>
+</body>
+</html>
