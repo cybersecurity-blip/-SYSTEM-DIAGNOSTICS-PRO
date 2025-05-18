@@ -1,216 +1,191 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="widdh=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #2563eb;
-      --secondary: #3b82f6;
-      --light: #f8fafc;
-      --dark: #1e293b;
-      --success: #10b981;
-      --danger: #ef4444;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f1f5f9;
-      color: #334155;
-      margin: 0;
-    }
-    
-    .dashboard {
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      min-height: 100vh;
-    }
-    
-    .sidebar {
-      background: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 1rem;
-    }
-    
-    .main-content {
-      padding: 2rem;
-    }
-    
-    .card {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .btn {
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-    }
-    
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    th, td {
-      padding: 0.75rem;
-      text-align: left;
-      border-bottom: 1px solid #e2e8f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="dashboard">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="logo" style="padding: 1rem 0; margin-bottom: 1rem;">
-        <img src="logo.png" alt="Logo" style="height: 40px;">
-      </div>
-      <nav>
-        <ul style="list-style: none; padding: 0;">
-          <li style="padding: 0.5rem 0;"><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-          <li style="padding: 0.5rem 0;"><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
-          <li style="padding: 0.5rem 0;"><a href="#"><i class="fas fa-users"></i> Users</a></li>
-          <li style="padding: 0.5rem 0;"><a href="#"><i class="fas fa-history"></i> Logs</a></li>
-        </ul>
-      </nav>
-    </div>
+// Replace the entire script section with this:
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <h1 style="margin-top: 0;">System Controls</h1>
-      
-      <!-- Status Cards -->
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
-        <div class="card">
-          <h3 style="margin-top: 0;">System Status</h3>
-          <p id="systemStatus">Loading...</p>
-        </div>
-        <div class="card">
-          <h3 style="margin-top: 0;">Active Users</h3>
-          <p id="activeUsers">0</p>
-        </div>
-        <div class="card">
-          <h3 style="margin-top: 0;">Uptime</h3>
-          <p id="systemUptime">00:00:00</p>
-        </div>
-      </div>
+<script>
+// DOM Elements
+const statusElements = {
+  systemStatus: document.getElementById('systemStatus'),
+  activeUsers: document.getElementById('activeUsers'),
+  uptime: document.getElementById('systemUptime'),
+  cpuValue: document.getElementById('cpuValue'),
+  cpuSlider: document.getElementById('cpuSlider'),
+  maintenanceBtn: document.getElementById('maintenanceBtn'),
+  shutdownBtn: document.getElementById('shutdownBtn'),
+  userTable: document.getElementById('userTable')
+};
 
-      <!-- Controls -->
-      <div class="card">
-        <h2 style="margin-top: 0;">Quick Actions</h2>
-        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-          <button class="btn btn-primary" id="maintenanceBtn">
-            <i class="fas fa-tools"></i> Toggle Maintenance
-          </button>
-          <button class="btn btn-primary" id="restartBtn">
-            <i class="fas fa-sync-alt"></i> Restart Services
-          </button>
-          <button class="btn btn-danger" id="shutdownBtn">
-            <i class="fas fa-power-off"></i> Emergency Stop
-          </button>
-        </div>
-        
-        <div style="margin-top: 1.5rem;">
-          <label for="cpuSlider" style="display: block; margin-bottom: 0.5rem;">
-            CPU Throttle: <span id="cpuValue">0%</span>
-          </label>
-          <input type="range" id="cpuSlider" min="0" max="100" style="width: 100%;">
-        </div>
-      </div>
+// State
+let currentSettings = {
+  maintenanceMode: false,
+  cpuThrottle: 0,
+  activeUsers: 0,
+  systemStatus: 'online'
+};
 
-      <!-- User Management -->
-      <div class="card">
-        <h2 style="margin-top: 0; margin-bottom: 1rem;">User Management</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Role</th>
-              <th>Last Active</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="userTable">
-            <!-- Filled by JavaScript -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+// Initialize
+document.addEventListener('DOMContentLoaded', async () => {
+  await checkAuth();
+  await loadSystemStatus();
+  await loadUsers();
+  
+  // Set up event listeners
+  statusElements.maintenanceBtn.addEventListener('click', toggleMaintenance);
+  statusElements.shutdownBtn.addEventListener('click', shutdownSystem);
+  statusElements.cpuSlider.addEventListener('input', updateCpuThrottle);
+  
+  // Start live updates
+  setInterval(loadSystemStatus, 5000);
+});
 
-  <script>
-  // Connect to server
-  async function fetchSystemStatus() {
-    try {
-      const response = await fetch('/api/system/status');
-      const data = await response.json();
-      
-      // Update UI
-      document.getElementById('systemStatus').textContent = 
-        data.maintenanceMode ? 'Maintenance Mode' : 'Operational';
-      document.getElementById('activeUsers').textContent = 
-        data.activeUsers || 0;
-      
-      // Set toggle button state
-      const btn = document.getElementById('maintenanceBtn');
-      btn.innerHTML = data.maintenanceMode ? 
-        '<i class="fas fa-check-circle"></i> Disable Maintenance' : 
-        '<i class="fas fa-tools"></i> Enable Maintenance';
-    } catch (error) {
-      console.error('Error fetching status:', error);
-    }
+// Authentication check
+async function checkAuth() {
+  try {
+    const response = await fetch('/api/auth/check', {
+      credentials: 'include'
+    });
+    if (!response.ok) window.location.href = 'maintenance.html';
+  } catch (err) {
+    console.error('Auth check failed:', err);
+    window.location.href = 'maintenance.html';
   }
+}
 
-  // Initialize
-  document.addEventListener('DOMContentLoaded', () => {
-    fetchSystemStatus();
+// Load system status
+async function loadSystemStatus() {
+  try {
+    const response = await fetch('/api/admin/status');
+    if (!response.ok) throw new Error('Failed to fetch status');
     
-    // Set up button handlers
-    document.getElementById('maintenanceBtn').addEventListener('click', async () => {
-      const response = await fetch('/api/system/maintenance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (response.ok) fetchSystemStatus();
+    const data = await response.json();
+    currentSettings = data;
+    
+    // Update UI
+    statusElements.systemStatus.textContent = 
+      data.systemStatus === 'online' ? 
+        (data.maintenanceMode ? 'Maintenance Mode' : 'Operational') : 
+        data.systemStatus.replace('_', ' ').toUpperCase();
+    
+    statusElements.activeUsers.textContent = data.activeUsers;
+    statusElements.cpuValue.textContent = `${data.cpuThrottle}%`;
+    statusElements.cpuSlider.value = data.cpuThrottle;
+    
+    // Update maintenance button
+    statusElements.maintenanceBtn.innerHTML = data.maintenanceMode ? 
+      '<i class="fas fa-check-circle"></i> Disable Maintenance' : 
+      '<i class="fas fa-tools"></i> Enable Maintenance';
+    
+    // Update uptime display
+    if (data.lastUpdated) {
+      const uptime = Math.floor((Date.now() - new Date(data.lastUpdated)) / 1000);
+      const hours = Math.floor(uptime / 3600);
+      const minutes = Math.floor((uptime % 3600) / 60);
+      const seconds = Math.floor(uptime % 60);
+      statusElements.uptime.textContent = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+  } catch (err) {
+    console.error('Error loading system status:', err);
+  }
+}
+
+// Load users
+async function loadUsers() {
+  try {
+    const response = await fetch('/api/admin/users');
+    const users = await response.json();
+    
+    statusElements.userTable.innerHTML = users.map(user => `
+      <tr>
+        <td>${user.username}</td>
+        <td>${user.role}</td>
+        <td>${new Date(user.lastActive).toLocaleString()}</td>
+        <td>
+          <button class="btn-action" onclick="editUser('${user._id}')">
+            <i class="fas fa-edit"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Error loading users:', err);
+  }
+}
+
+// Control functions
+async function toggleMaintenance() {
+  try {
+    const response = await fetch('/api/admin/toggle-maintenance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: !currentSettings.maintenanceMode })
     });
     
-    document.getElementById('shutdownBtn').addEventListener('click', async () => {
-      if (confirm('Are you sure you want to shutdown the system?')) {
-        await fetch('/api/system/shutdown', { method: 'POST' });
-        alert('System shutdown initiated');
-      }
+    if (response.ok) {
+      await loadSystemStatus();
+    }
+  } catch (err) {
+    console.error('Error toggling maintenance:', err);
+  }
+}
+
+async function updateCpuThrottle(e) {
+  const percent = e.target.value;
+  statusElements.cpuValue.textContent = `${percent}%`;
+  
+  try {
+    await fetch('/api/admin/cpu-throttle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ percent })
+    });
+  } catch (err) {
+    console.error('Error updating CPU throttle:', err);
+  }
+}
+
+async function shutdownSystem() {
+  if (!confirm('Are you sure you want to shutdown the system?')) return;
+  
+  try {
+    const response = await fetch('/api/admin/shutdown', {
+      method: 'POST'
     });
     
-    // CPU Slider
-    document.getElementById('cpuSlider').addEventListener('input', async (e) => {
-      const value = e.target.value;
-      document.getElementById('cpuValue').textContent = `${value}%`;
-      await fetch('/api/system/throttle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ percent: value })
-      });
-    });
-  });
-  </script>
-</body>
-</html>
+    if (response.ok) {
+      alert('System shutdown initiated');
+      await loadSystemStatus();
+    }
+  } catch (err) {
+    console.error('Error shutting down:', err);
+  }
+}
+
+// Helper functions
+function editUser(userId) {
+  // Implement user editing logic
+  console.log('Edit user:', userId);
+}
+</script>
+.btn-action {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.btn-action:hover {
+  color: var(--secondary);
+}
+
+.status-online {
+  color: var(--success);
+}
+
+.status-offline {
+  color: var(--danger);
+}
+
+.status-maintenance {
+  color: var(--warning);
+}
