@@ -360,3 +360,68 @@ app.post('/api/system/throttle', async (req, res) => {
   
   res.json({ success: true });
 });
+// Add to your existing server.js
+const SystemSettings = require('./models/SystemSettings');
+
+// Admin Control Endpoints
+app.post('/api/admin/toggle-maintenance', async (req, res) => {
+  try {
+    const settings = await SystemSettings.findOneAndUpdate({}, 
+      { $set: { maintenanceMode: req.body.enabled } },
+      { new: true, upsert: true }
+    );
+    res.json({ maintenanceMode: settings.maintenanceMode });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/cpu-throttle', async (req, res) => {
+  try {
+    const percent = Math.max(0, Math.min(100, req.body.percent));
+    await SystemSettings.findOneAndUpdate({}, 
+      { $set: { cpuThrottle: percent } },
+      { upsert: true }
+    );
+    res.json({ success: true, cpuThrottle: percent });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/shutdown', async (req, res) => {
+  try {
+    // Simulate shutdown sequence
+    await SystemSettings.findOneAndUpdate({}, 
+      { $set: { systemStatus: 'shutting_down' } },
+      { upsert: true }
+    );
+    
+    setTimeout(async () => {
+      await SystemSettings.findOneAndUpdate({}, 
+        { $set: { systemStatus: 'offline' } }
+      );
+    }, 5000);
+    
+    res.json({ success: true, message: 'Shutdown initiated' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/status', async (req, res) => {
+  try {
+    const settings = await SystemSettings.findOne() || new SystemSettings();
+    const activeUsers = await User.countDocuments({ lastActive: { $gt: new Date(Date.now() - 15*60*1000) } });
+    
+    res.json({
+      maintenanceMode: settings.maintenanceMode,
+      cpuThrottle: settings.cpuThrottle || 0,
+      activeUsers,
+      systemStatus: settings.systemStatus || 'online',
+      lastUpdated: settings.updatedAt
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
