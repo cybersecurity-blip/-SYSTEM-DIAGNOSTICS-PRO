@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Password Reset</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+      border: 2px solid #00c6ff;
+      border-radius: 10px;
+      max-width: 600px;
+    }
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+    }
+    button {
+      background: #00c6ff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    .error {
+      color: #ff6b6b;
+      margin: 10px 0;
+    }
+    .success {
+      color: #00c6ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔒 Reset Password</h1>
+    
+    <div id="resetForm">
+      <input type="password" id="newPassword" placeholder="New password">
+      <input type="password" id="confirmPassword" placeholder="Confirm password">
+      <button onclick="resetPassword()">Reset Password</button>
+      <div id="resetMessage" class="error"></div>
+    </div>
+    
+    <div id="successMessage" class="success" style="display:none">
+      Password reset successfully! <a href="maintenance.html">Login now</a>
+    </div>
+  </div>
+
+  <script>
+  // Get token from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  function resetPassword() {
+    const newPass = document.getElementById('newPassword').value;
+    const confirmPass = document.getElementById('confirmPassword').value;
+    const messageElement = document.getElementById('resetMessage');
+    
+    if (!token || token !== 'temp-reset-token') {
+      messageElement.textContent = 'Invalid or expired reset link';
+      return;
+    }
+    
+    if (newPass !== confirmPass) {
+      messageElement.textContent = 'Passwords do not match';
+      return;
+    }
+    
+    if (newPass.length < 8) {
+      messageElement.textContent = 'Password must be at least 8 characters';
+      return;
+    }
+    
+    // In a real app, you would send this to your backend
+    // For demo, we'll just update the hardcoded password
+    messageElement.textContent = 'Password reset successful!';
+    messageElement.style.color = '#00c6ff';
+    
+    // Simulate backend update
+    console.log('Password would be updated to:', newPass);
+    
+    // Show success
+    document.getElementById('resetForm').style.display = 'none';
+    document.getElementById('successMessage').style.display = 'block';
+  }
+  </script>
+</body>
+</html>
