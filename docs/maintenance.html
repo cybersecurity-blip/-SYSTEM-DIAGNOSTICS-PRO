@@ -44,94 +44,45 @@
       color: #ff6b6b;
       margin: 10px 0;
     }
-    .forgot-password {
-      color: #00c6ff;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    #resetForm {
-      display: none;
-      margin-top: 20px;
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🛠️ System Maintenance</h1>
-    <p id="statusMessage">We're performing critical system updates.</p>
-    
-    <div class="login-box" id="loginSection">
+    <div class="login-box">
       <h3>Admin Login</h3>
       <input type="text" id="username" placeholder="Username">
       <input type="password" id="password" placeholder="Password">
       <button onclick="login()">Login</button>
       <div id="errorMessage" class="error"></div>
-      <div class="forgot-password" onclick="showResetForm()">Forgot password?</div>
-      
-      <div id="resetForm">
-        <h4>Reset Password</h4>
-        <input type="email" id="resetEmail" placeholder="Your email">
-        <button onclick="sendResetLink()">Send Reset Link</button>
-        <div id="resetMessage" class="error"></div>
-      </div>
     </div>
   </div>
 
   <script>
-  // Hardcoded credentials (FOR DEVELOPMENT ONLY)
-  const ADMIN_CREDENTIALS = {
-    username: "admin",
-    password: "SecurePass123!", // Change this!
-    email: "admin@yourdomain.com" // Change this!
-  };
+    // Hardcoded credentials for testing
+    const ADMIN_CREDENTIALS = {
+      username: "admin",
+      password: "test123"
+    };
 
-  // Simple session storage
-  const authToken = "demo-auth-token-12345";
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorElement = document.getElementById('errorMessage');
 
-  function login() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const errorElement = document.getElementById('errorMessage');
-
-    if (username === ADMIN_CREDENTIALS.username && 
-        password === ADMIN_CREDENTIALS.password) {
-      // Successful login
-      document.cookie = `authToken=${authToken}; path=/; max-age=3600`; // 1 hour
-      window.location.href = 'admin.html';
-    } else {
-      errorElement.textContent = 'Invalid username or password';
+      if (username === ADMIN_CREDENTIALS.username && 
+          password === ADMIN_CREDENTIALS.password) {
+        sessionStorage.setItem('authenticated', 'true');
+        window.location.href = 'index.html';
+      } else {
+        errorElement.textContent = 'Invalid credentials';
+      }
     }
-  }
 
-  function showResetForm() {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('resetForm').style.display = 'block';
-    document.getElementById('statusMessage').textContent = 'Enter your email to reset password';
-  }
-
-  function sendResetLink() {
-    const email = document.getElementById('resetEmail').value;
-    const resetMessage = document.getElementById('resetMessage');
-    
-    if (email === ADMIN_CREDENTIALS.email) {
-      // In a real app, you would send an email here
-      resetMessage.textContent = 'Reset link sent to your email (simulated)';
-      resetMessage.style.color = '#00c6ff';
-      
-      // Simulate sending email
-      setTimeout(() => {
-        resetMessage.textContent += '\nDemo reset link: reset.html?token=temp-reset-token';
-      }, 1500);
-    } else {
-      resetMessage.textContent = 'Email not found in our system';
-      resetMessage.style.color = '#ff6b6b';
+    // Redirect if already logged in
+    if (sessionStorage.getItem('authenticated')) {
+      window.location.href = 'index.html';
     }
-  }
-
-  // Check if already logged in
-  if (document.cookie.includes('authToken')) {
-    window.location.href = 'admin.html';
-  }
   </script>
 </body>
 </html>
