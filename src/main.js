@@ -24,3 +24,13 @@ ipcMain.handle('scan-pc', async () => {
 });
 
 app.whenReady().then(createWindow);
+
+import { ipcMain } from 'electron';
+
+ipcMain.handle('2fa:generate-secret', async (event, userId) => {
+  return await authService.generateSecret(userId);
+});
+
+ipcMain.handle('2fa:verify-code', async (event, { userId, token }) => {
+  return await authService.verifyToken(userId, token);
+});
