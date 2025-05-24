@@ -47,6 +47,19 @@
   </style>
 </head>
 <body>
+<!-- Add before closing </body> -->
+<div id="2fa-modal" class="hidden">
+  <div class="modal-content">
+    <h3>Two-Factor Authentication</h3>
+    <div id="qr-container"></div>
+    <input type="number" id="2fa-code" placeholder="6-digit code">
+    <button onclick="verify2FA()">Verify</button>
+    <p id="2fa-error" class="error"></p>
+  </div>
+</div>
+
+<script src="../src/2fa.js"></script>
+
   <div class="container">
     <h1>🛠️ System Maintenance</h1>
     <div class="login-box">
