@@ -48,3 +48,46 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
+
+// Generate 2FA secret
+router.post('/auth/generate-secret', async (req, res) => {
+  const secret = speakeasy.generateSecret({
+    name: "Your App Name",
+    issuer: "Your Company"
+  });
+  
+  // Save to DB (pseudo-code)
+  await SystemSettings.updateOne(
+    { userId: req.user.id },
+    { $set: { temp2FASecret: secret.base32 } }
+  );
+
+  const qrCode = await QRCode.toDataURL(secret.otpauth_url);
+  res.json({ secret: secret.base32, qrCode });
+});
+
+// Verify 2FA code
+router.post('/auth/verify-2fa', async (req, res) => {
+  const user = await SystemSettings.findOne({ userId: req.user.id });
+  
+  const verified = speakeasy.totp.verify({
+    secret: user.temp2FASecret || user.twoFASecret,
+    encoding: 'base32',
+    token: req.body.token,
+    window: 1
+  });
+
+  if (verified && !user.twoFASecret) {
+    await SystemSettings.updateOne(
+      { userId: req.user.id },
+      { 
+        $set: { twoFASecret: user.temp2FASecret },
+        $unset: { temp2FASecret: 1 }
+      }
+    );
+  }
+
+  res.json({ verified });
+});
