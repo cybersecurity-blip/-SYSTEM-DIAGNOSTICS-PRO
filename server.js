@@ -160,7 +160,12 @@ async function logAction(req, res, next) {
   };
   next();
 }
-
+// Add before routes
+app.use(helmet());
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+}));
 // Routes
 app.post('/api/login', async (req, res) => {
   try {
